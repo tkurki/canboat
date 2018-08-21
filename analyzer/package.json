@@ -1,0 +1,16 @@
+{
+  "name": "pgndata",
+  "version": "1.0.0",
+  "description": "Canboat pgn data",
+  "main": "pgns.json",
+  "scripts": {
+    "prepublish": "generatejson"
+  },
+  "license": "GPL-3.0-or-later",
+  "devDependencies": {
+    "lodash.get": "^4.4.2",
+    "lodash.set": "^4.3.2",
+    "xml-query": "^1.4.0",
+    "xml-reader": "^2.4.3"
+  }
+}

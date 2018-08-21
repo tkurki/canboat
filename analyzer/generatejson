@@ -1,0 +1,53 @@
+#!/usr/bin/env node
+
+const get = require('lodash.get')
+
+const PGNFIELDS = ['Id', 'Description', 'Complete', 'Length', 'RepeatingFields']
+const FIELDPROPERTIES = [
+  'Order',
+  'Id',
+  'Name',
+  'BitLength',
+  'BitOffset',
+  'BitStart',
+  'Type',
+  'Signed'
+]
+
+const result = {}
+
+require('xml-query')(
+  require('xml-reader').parseSync(
+    require('fs').readFileSync('./pgns.xml', 'utf8')
+  )
+)
+  .find('PGNInfo')
+  .each(node => {
+    const pgn = getByName(node, 'PGN')
+    const definitionsArray = result[pgn] || []
+    const pgnDefinition = PGNFIELDS.reduce((acc, field, i) => {
+      acc[field] = getByName(node, field)
+      return acc
+    }, {})
+    const fieldData = get(getValueByName(node, 'Fields'), 'children', [])
+    pgnDefinition.Fields = fieldData.map(field =>
+      FIELDPROPERTIES.reduce((acc, fieldName) => {
+        acc[fieldName] = getByName(field, fieldName)
+        return acc
+      }, {})
+    )
+    definitionsArray.push(pgnDefinition)
+    result[pgn] = definitionsArray
+  })
+
+console.log(JSON.stringify(result, null, 2))
+
+function getByName (node, objectNameValue, path = 'children[0].value') {
+//   console.log(node.children.find(o => o.name === objectNameValue))
+  const r = get(node.children.find(o => o.name === objectNameValue), path)
+  return r
+}
+
+function getValueByName (node, objectNameValue) {
+  return node.children.find(o => o.name === objectNameValue)
+}
